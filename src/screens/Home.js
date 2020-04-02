@@ -17,6 +17,7 @@ import MapView, {Marker, Circle, Callout} from 'react-native-maps';
 import RNPickerSelect from 'react-native-picker-select';
 import axios from 'axios';
 import Modal, {SlideAnimation, ModalContent} from 'react-native-modals';
+import MapsCovid from './modals/maps';
 
 const COVID_WORLD = 'https://corona.lmao.ninja/all';
 const COVID_COUNTRY = 'https://corona.lmao.ninja/countries?sort=country';
@@ -185,84 +186,17 @@ export default class Maps extends Component {
       /* <StatusBar translucent backgroundColor="transparent" /> */
       <>
         <StatusBar backgroundColor="#1c313a" />
+        <MapsCovid
+          currentPosition={this.state.currentPosition}
+          listDataCountryInfo={this.state.listDataCountryInfo}
+        />
         {/* {console.warn(this.state.listDataCountryInfo)} */}
-        <MapView
-          ref={ref => (this.myMap = ref)}
-          style={styles.map}
-          showsTraffic
-          showsMyLocationButton
-          mapType={'satellite'}
-          showsCompass={true}
-          initialRegion={this.state.currentPosition}>
-          <Marker
-            style={styles.marker}
-            coordinate={this.state.currentPosition}
-            onPress={() => {
-              // this.setState({chatInfo: ''});
-              // this.setState({visible1: true});
-              this.myMap.fitToCoordinates([this.state.currentPosition], {
-                edgePadding: {top: 50, right: 50, bottom: 50, left: 50},
-                animated: true,
-              });
-            }}>
-            <Image
-              style={{
-                width: '100%',
-                height: '100%',
 
-                borderColor: '#A5EACF',
-              }}
-              source={{
-                uri:
-                  'https://images.vexels.com/media/users/3/142675/isolated/preview/84e468a8fff79b66406ef13d3b8653e2-house-location-marker-icon-by-vexels.png',
-              }}
-            />
-          </Marker>
-          {this.state.listDataCountryInfo.map(e => {
-            return (
-              <Marker
-                style={styles.markerCountry}
-                coordinate={{
-                  latitude: e.lat,
-                  longitude: e.long,
-                  latitudeDelta: 0,
-                  longitudeDelta: 0.05,
-                }}
-                onPress={() => {
-                  this.filterCountry(e.country);
-                }}>
-                <Image
-                  style={{
-                    marginTop: '0%',
-                    width: '20%',
-                    height: '40%',
-                    alignSelf: 'center',
-
-                    borderColor: '#A5EACF',
-                  }}
-                  source={{
-                    uri: e.flag,
-                  }}
-                />
-                {/* {console.warn(e.flag)} */}
-                <Text
-                  style={{
-                    color: '#fff',
-                    textAlign: 'center',
-                    fontWeight: 'bold',
-                    fontSize: 11,
-                  }}>
-                  {e.country} 😷{e.cases}
-                </Text>
-              </Marker>
-            );
-          })}
-        </MapView>
         {/* {console.warn(this.state.countryInfo)} */}
         <Modal
           style={{
             height: '100%',
-            paddingTop: '170%',
+            paddingTop: '175%',
             borderRadius: 50,
           }}
           transparent={true}
@@ -393,7 +327,7 @@ export default class Maps extends Component {
                     }}
                   />
                 </View>
-                <View style={{top: '-5%'}}>
+                <View style={{top: '-8%'}}>
                   <Text
                     style={{
                       textAlign: 'center',
@@ -513,7 +447,7 @@ export default class Maps extends Component {
                     }}
                   />
                 </View>
-                <View style={{top: '-5%'}}>
+                <View style={{top: '-8%'}}>
                   <Text
                     style={{
                       //   height: '100%',
@@ -533,7 +467,7 @@ export default class Maps extends Component {
         <Modal
           style={{
             height: '100%',
-            paddingTop: '170%',
+            paddingTop: '175%',
             borderRadius: 50,
           }}
           transparent={true}
@@ -662,7 +596,7 @@ export default class Maps extends Component {
                 }}
               />
             </View>
-            <View style={{top: '-5%'}}>
+            <View style={{top: '-8%'}}>
               <Text
                 style={{
                   textAlign: 'center',
@@ -680,7 +614,7 @@ export default class Maps extends Component {
 
             height: '100%',
             weight: '100%',
-            top: '-6%',
+            top: '-7%',
             borderTopLeftRadius: 40,
             borderTopRightRadius: 40,
           }}>
@@ -699,7 +633,7 @@ export default class Maps extends Component {
           <View
             style={{
               top: '4%',
-              width: '90%',
+              width: '100%',
               //   backgroundColor: 'rgba(255, 255,255,0.2)',
               //   borderRadius: 25,
               paddingHorizontal: 16,
@@ -708,12 +642,13 @@ export default class Maps extends Component {
             <View
               style={{
                 // backgroundColor: 'red',
+                left: '5%',
                 top: '4%',
-                width: '95%',
+                width: '78%',
                 backgroundColor: '#fff',
                 borderRadius: 15,
                 paddingHorizontal: 19,
-                alignSelf: 'center',
+                // alignSelf: 'center',
               }}>
               <RNPickerSelect
                 onValueChange={value => this.filterCountry(value)}
@@ -845,7 +780,7 @@ export default class Maps extends Component {
                     color: '#f8ad1e',
                     width: '100%',
                     height: '100%',
-                    fontSize: 21,
+                    fontSize: 18,
                     fontWeight: 'bold',
                     fontFamily: 'monospace',
                   }}>
@@ -881,7 +816,7 @@ export default class Maps extends Component {
                     width: '100%',
                     height: '100%',
                     color: '#166138',
-                    fontSize: 21,
+                    fontSize: 18,
                     fontWeight: 'bold',
                     fontFamily: 'monospace',
                   }}>
@@ -917,7 +852,7 @@ export default class Maps extends Component {
                     width: '100%',
                     height: '100%',
                     color: '#B11E31',
-                    fontSize: 21,
+                    fontSize: 18,
                     fontWeight: 'bold',
                     fontFamily: 'monospace',
                   }}>
@@ -938,21 +873,25 @@ export default class Maps extends Component {
               <Text style={styles.buttonTextDetail}>Detail Cases</Text>
             </TouchableOpacity>
           </View>
-          <View style={{position: 'absolute', left: '41%', top: '57%'}}>
+          <View style={{position: 'absolute', width: '100%', height: '100%'}}>
             <TouchableOpacity
               style={{
+                right: -320,
+                top: '6.5%',
+
                 // top: '400%',
-                width: 80,
-                height: 80,
-                borderRadius: 35,
-                marginVertical: 10,
+                width: '100%',
+                height: '100%',
+                // borderRadius: 35,
+                // marginVertical: 10,
                 paddingVertical: 13,
               }}
               onPress={() => this.onTarget()}>
               <Image
                 style={{
-                  width: 80,
-                  height: 80,
+                  // top: '80%',
+                  width: 50,
+                  height: 50,
                   borderRadius: 50,
                   //   borderWidth: 1,
                   borderColor: '#33cccc',
@@ -960,7 +899,16 @@ export default class Maps extends Component {
                 source={require('../images/target.png')}
               />
             </TouchableOpacity>
-            <Text style={{top: '25%', fontSize: 9}}>@VizyApp2020</Text>
+            <Text
+              style={{
+                position: 'absolute',
+                top: '57%',
+                // textAlign: 'center',
+                alignSelf: 'center',
+                fontSize: 10,
+              }}>
+              @VizyApp2020
+            </Text>
           </View>
         </View>
       </>
@@ -997,7 +945,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   map: {
-    height: '30%',
+    height: '45%',
     width: '100%',
   },
   //   marker: {
@@ -1032,13 +980,13 @@ const styles = StyleSheet.create({
   },
   marker: {
     // backgroundColor: 'red',
-    width: '10%',
-    height: '20%',
+    width: '15%',
+    height: '15%',
   },
 
   markerCountry: {
     // backgroundColor: 'red',
-    width: '40%',
+    width: '60%',
     height: '20%',
   },
 });
