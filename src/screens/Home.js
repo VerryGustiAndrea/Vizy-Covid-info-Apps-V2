@@ -184,7 +184,7 @@ export default class Maps extends Component {
       //  this.state.currentPosition.latitude ?
       /* <StatusBar translucent backgroundColor="transparent" /> */
       <>
-        <StatusBar backgroundColor="#3E503C" />
+        <StatusBar backgroundColor="#1c313a" />
         {/* {console.warn(this.state.listDataCountryInfo)} */}
         <MapView
           ref={ref => (this.myMap = ref)}
@@ -973,15 +973,17 @@ export default class Maps extends Component {
             width: '100%',
             height: '100%',
             justifyContent: 'center',
-            backgroundColor: '#7F886A',
+            backgroundColor: '#fff',
           }}>
-          {/* <Image
-          style={{
-            alignSelf: 'center',
-          }}
-          source={require('../images/logo.png')}
-        /> */}
-          <ActivityIndicator style={{top: 0}} animating size="large" />
+          <Image
+            style={{
+              width: 125,
+              height: 125,
+              alignSelf: 'center',
+            }}
+            source={require('../images/logovizy.png')}
+          />
+          <ActivityIndicator style={{top: 20}} animating size="large" />
         </View>
       </>
     );
