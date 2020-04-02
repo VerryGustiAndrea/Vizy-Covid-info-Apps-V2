@@ -20,6 +20,7 @@ import Modal, {SlideAnimation, ModalContent} from 'react-native-modals';
 
 const COVID_WORLD = 'https://corona.lmao.ninja/all';
 const COVID_COUNTRY = 'https://corona.lmao.ninja/countries?sort=country';
+const COVID_LAMPUNG = 'http://54.166.159.175:4000/api/product/getallcovid';
 
 const initialState = {
   latitude: null,
@@ -44,6 +45,7 @@ export default class Maps extends Component {
     super();
     this.state = {
       visible1: false,
+      visible2: false,
       currentPosition: initialState,
       dataCountry: {
         cases: 0,
@@ -56,6 +58,7 @@ export default class Maps extends Component {
       },
       listDataCountry: [],
       countryInfo: [],
+      listDataCountryInfo: [],
     };
   }
 
@@ -65,6 +68,7 @@ export default class Maps extends Component {
       //   console.warn(dataCountry);
       this.setState({dataCountry});
     });
+    console.warn(this.state.dataCountry);
   };
 
   getCovidCountry = async () => {
@@ -75,6 +79,15 @@ export default class Maps extends Component {
     });
   };
 
+  getCovidLampung = async () => {
+    await axios.get(COVID_LAMPUNG).then(res => {
+      let dataCountry = res.data[0];
+      //   console.warn(dataCountry);
+      this.setState({dataCountry});
+    });
+    console.warn(this.state.dataCountry);
+  };
+
   getcoordinate = () => {
     navigator.geolocation.getCurrentPosition(
       position => {
@@ -83,7 +96,7 @@ export default class Maps extends Component {
           latitude: latitude,
           longitude: longitude,
           latitudeDelta: 0,
-          longitudeDelta: 8.05,
+          longitudeDelta: 28.05,
         };
         // console.warn(data);
         this.setState({
@@ -117,7 +130,49 @@ export default class Maps extends Component {
     }
   };
 
+  listDataCountryInfo = async () => {
+    await axios.get(COVID_COUNTRY).then(res => {
+      let data = res.data;
+      let dataX = [];
+      data.map(e => {
+        {
+          dataX.push({
+            country: e.country,
+            cases: e.cases,
+            _id: e.countryInfo._id,
+            lat: e.countryInfo.lat,
+            long: e.countryInfo.long,
+            flag: e.countryInfo.flag,
+          });
+        }
+      });
+      // console.warn(dataX);
+
+      // {
+      //   this.state.dataCountry.country === undefined
+      //     ? console.warn('country check null')
+      //     : console.warn('country check find'),
+      this.setState({listDataCountryInfo: dataX});
+      // }
+    });
+  };
+
+  onTarget = () => {
+    let location = this.state.currentPosition;
+
+    this.myMap.animateToRegion({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      latitudeDelta: 0,
+      longitudeDelta: 28.03,
+    });
+
+    // this.state.markers[index].showCallout();
+  };
+
   componentDidMount() {
+    this.listDataCountryInfo();
+
     this.getcoordinate();
     this.getCovidAll();
     this.getCovidCountry();
@@ -130,12 +185,12 @@ export default class Maps extends Component {
       /* <StatusBar translucent backgroundColor="transparent" /> */
       <>
         <StatusBar backgroundColor="#3E503C" />
+        {/* {console.warn(this.state.listDataCountryInfo)} */}
         <MapView
           ref={ref => (this.myMap = ref)}
           style={styles.map}
-          // showsTraffic
-          // showsMyLocationButton
-          // showsUserLocation
+          showsTraffic
+          showsMyLocationButton
           mapType={'satellite'}
           showsCompass={true}
           initialRegion={this.state.currentPosition}>
@@ -144,69 +199,61 @@ export default class Maps extends Component {
             coordinate={this.state.currentPosition}
             onPress={() => {
               // this.setState({chatInfo: ''});
-              let datax = {
-                latitude: this.state.latitude,
-                longitude: this.state.longitude,
-                latitudeDelta: 0,
-                longitudeDelta: 4.05,
-              };
-              this.setState({currentPosition: datax});
-              // this.myMap.fitToCoordinates([this.state.currentPosition], {
-              //   edgePadding: {top: 500, right: 50, bottom: 50, left: 50},
-              //   //   animated: true,
-              // });
-            }}></Marker>
+              // this.setState({visible1: true});
+              this.myMap.fitToCoordinates([this.state.currentPosition], {
+                edgePadding: {top: 50, right: 50, bottom: 50, left: 50},
+                animated: true,
+              });
+            }}>
+            <Image
+              style={{
+                width: '100%',
+                height: '100%',
 
-          {this.state.listDataCountry.map(e => {
+                borderColor: '#A5EACF',
+              }}
+              source={{
+                uri:
+                  'https://images.vexels.com/media/users/3/142675/isolated/preview/84e468a8fff79b66406ef13d3b8653e2-house-location-marker-icon-by-vexels.png',
+              }}
+            />
+          </Marker>
+          {this.state.listDataCountryInfo.map(e => {
             return (
               <Marker
-                style={styles.marker}
+                style={styles.markerCountry}
                 coordinate={{
-                  latitude: e.countryInfo.lat,
-                  longitude: e.countryInfo.long,
+                  latitude: e.lat,
+                  longitude: e.long,
                   latitudeDelta: 0,
                   longitudeDelta: 0.05,
                 }}
                 onPress={() => {
-                  let data = {
-                    name: e.name,
-                    phone: e.phone,
-                  };
-                  this.setState({chatInfo: data});
-                  this.setState({visible: true});
-                  this.myMap.fitToCoordinates(
-                    [
-                      {
-                        latitude: e.latitude,
-                        longitude: e.longitude,
-                        latitudeDelta: 0,
-                        longitudeDelta: 0.05,
-                      },
-                    ],
-                    {
-                      edgePadding: {
-                        top: 50,
-                        right: 50,
-                        bottom: 1400,
-                        left: 50,
-                      },
-                      animated: true,
-                    },
-                  );
+                  this.filterCountry(e.country);
                 }}>
                 <Image
                   style={{
-                    marginTop: '100%',
-                    width: '100%',
-                    height: '45%',
-                    borderRadius: 50,
-                    borderWidth: 5,
+                    marginTop: '0%',
+                    width: '20%',
+                    height: '40%',
+                    alignSelf: 'center',
+
                     borderColor: '#A5EACF',
                   }}
                   source={{
-                    uri: e.pict,
+                    uri: e.flag,
                   }}
                 />
+                {/* {console.warn(e.flag)} */}
+                <Text
+                  style={{
+                    color: '#fff',
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                    fontSize: 11,
+                  }}>
+                  {e.country} 😷{e.cases}
+                </Text>
               </Marker>
             );
           })}
@@ -214,7 +261,8 @@ export default class Maps extends Component {
         {/* {console.warn(this.state.countryInfo)} */}
         <Modal
           style={{
-            paddingTop: 660,
+            height: '100%',
+            paddingTop: '170%',
             borderRadius: 50,
           }}
           transparent={true}
@@ -345,13 +393,11 @@ export default class Maps extends Component {
                     }}
                   />
                 </View>
-                <View style={{top: '50%'}}>
+                <View style={{top: '-5%'}}>
                   <Text
                     style={{
-                      //   height: '100%',
-                      //   width: '100%',
                       textAlign: 'center',
-                      fontSize: 8,
+                      fontSize: 10,
                     }}>
                     Data Updated at{' '}
                     {convertTime(this.state.dataCountry.updated)}
@@ -467,13 +513,13 @@ export default class Maps extends Component {
                     }}
                   />
                 </View>
-                <View style={{top: '50%'}}>
+                <View style={{top: '-5%'}}>
                   <Text
                     style={{
                       //   height: '100%',
                       //   width: '100%',
                       textAlign: 'center',
-                      fontSize: 8,
+                      fontSize: 10,
                     }}>
                     Data Updated at{' '}
                     {convertTime(this.state.dataCountry.updated)}
@@ -481,6 +527,150 @@ export default class Maps extends Component {
                 </View>
               </>
             )}
+          </View>
+        </Modal>
+
+        <Modal
+          style={{
+            height: '100%',
+            paddingTop: '170%',
+            borderRadius: 50,
+          }}
+          transparent={true}
+          visible={this.state.visible2}
+          modalAnimation={
+            new SlideAnimation({
+              slideFrom: 'bottom',
+            })
+          }
+          onTouchOutside={() => {
+            this.setState({visible2: false});
+          }}>
+          <View
+            style={{
+              // paddingTop: '50%',
+
+              height: 180,
+              width: 370,
+              top: 0,
+              // paddingHorizontal: 40,
+              backgroundColor: '#fff',
+            }}>
+            <View
+              style={{
+                backgroundColor: '#fff',
+                flexDirection: 'row',
+                height: '25%',
+                width: '90%',
+                alignSelf: 'center',
+                borderRadius: 25,
+              }}>
+              <View
+                style={{
+                  top: '12%',
+                  left: '10%',
+                  width: '40%',
+                }}>
+                <Text
+                  style={{
+                    left: '-4%',
+                    width: 150,
+                    textAlign: 'center',
+                    top: '5.5%',
+                    fontSize: 14,
+                    color: '#7d887a',
+                    fontStyle: 'italic',
+                  }}>
+                  ODP
+                </Text>
+                <View
+                  style={{
+                    top: '6%',
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: 20,
+                  }}>
+                  <Text
+                    style={{
+                      left: '-4%',
+                      top: '50%',
+                      textAlign: 'center',
+                      color: '#f8ad1e',
+                      width: 150,
+                      height: '100%',
+                      fontSize: 20,
+                      fontWeight: 'bold',
+                      fontFamily: 'monospace',
+                    }}>
+                    {this.state.dataCountry.odp}
+                  </Text>
+                </View>
+              </View>
+
+              <View
+                style={{
+                  top: '12%',
+                  left: '100%',
+                  width: '40%',
+                }}>
+                <Text
+                  style={{
+                    left: '-4%',
+                    width: 150,
+                    textAlign: 'center',
+                    top: '5.5%',
+                    fontSize: 14,
+                    color: '#7d887a',
+                    fontStyle: 'italic',
+                  }}>
+                  PDP
+                </Text>
+                <View
+                  style={{
+                    top: '6%',
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: 20,
+                  }}>
+                  <Text
+                    style={{
+                      left: '-4%',
+                      top: '50%',
+                      textAlign: 'center',
+                      color: '#B11E31',
+                      width: 150,
+                      height: '100%',
+                      fontSize: 20,
+                      fontWeight: 'bold',
+                      fontFamily: 'monospace',
+                    }}>
+                    {this.state.dataCountry.pdp}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <View style={{top: '-25%'}}>
+              <Image
+                style={{
+                  alignSelf: 'center',
+                  width: '16%',
+                  height: '57%',
+                }}
+                source={{
+                  uri:
+                    'https://cdn.iconscout.com/icon/premium/png-256-thumb/virus-78-613107.png',
+                }}
+              />
+            </View>
+            <View style={{top: '-5%'}}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 10,
+                }}>
+                https://dinkes.lampungprov.go.id/covid19/
+              </Text>
+            </View>
           </View>
         </Modal>
 
@@ -518,7 +708,7 @@ export default class Maps extends Component {
             <View
               style={{
                 // backgroundColor: 'red',
-                top: '2%',
+                top: '4%',
                 width: '95%',
                 backgroundColor: '#fff',
                 borderRadius: 15,
@@ -540,7 +730,7 @@ export default class Maps extends Component {
               style={{
                 // backgroundColor: 'red',
                 flexDirection: 'row',
-                top: '4%',
+                top: '5.5%',
                 height: '22%',
                 width: '90%',
                 alignSelf: 'center',
@@ -559,9 +749,7 @@ export default class Maps extends Component {
                   position: 'absolute',
                   // bottom: 0,
                 }}
-                onPress={() => {
-                  this.countryInfo(), this.setState({visible1: true});
-                }}>
+                onPress={() => this.getCovidAll()}>
                 <Text style={styles.buttonTextDetail}>World</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -578,7 +766,7 @@ export default class Maps extends Component {
                   // bottom: 0,
                 }}
                 onPress={() => {
-                  this.countryInfo(), this.setState({visible1: true});
+                  this.filterCountry('indonesia');
                 }}>
                 <Text style={styles.buttonTextDetail}>Indonesia</Text>
               </TouchableOpacity>
@@ -596,7 +784,7 @@ export default class Maps extends Component {
                   // bottom: 0,
                 }}
                 onPress={() => {
-                  this.countryInfo(), this.setState({visible1: true});
+                  this.getCovidLampung();
                 }}>
                 <Text style={styles.buttonTextDetail}>Lampung</Text>
               </TouchableOpacity>
@@ -742,10 +930,37 @@ export default class Maps extends Component {
             <TouchableOpacity
               style={styles.buttonDetail}
               onPress={() => {
-                this.countryInfo(), this.setState({visible1: true});
+                this.countryInfo(),
+                  this.state.dataCountry.odp === undefined
+                    ? this.setState({visible1: true})
+                    : this.setState({visible2: true});
               }}>
               <Text style={styles.buttonTextDetail}>Detail Cases</Text>
             </TouchableOpacity>
+          </View>
+          <View style={{position: 'absolute', left: '41%', top: '57%'}}>
+            <TouchableOpacity
+              style={{
+                // top: '400%',
+                width: 80,
+                height: 80,
+                borderRadius: 35,
+                marginVertical: 10,
+                paddingVertical: 13,
+              }}
+              onPress={() => this.onTarget()}>
+              <Image
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 50,
+                  //   borderWidth: 1,
+                  borderColor: '#33cccc',
+                }}
+                source={require('../images/target.png')}
+              />
+            </TouchableOpacity>
+            <Text style={{top: '25%', fontSize: 9}}>@VizyApp2020</Text>
           </View>
         </View>
       </>
@@ -783,11 +998,11 @@ const styles = StyleSheet.create({
     height: '30%',
     width: '100%',
   },
-  marker: {
-    // backgroundColor: 'red',
-    width: '20%',
-    height: '20%',
-  },
+  //   marker: {
+  //     backgroundColor: 'red',
+  //     width: '100%',
+  //     height: '100%',
+  //   },
 
   buttonProfile: {
     fontSize: 16,
@@ -815,7 +1030,13 @@ const styles = StyleSheet.create({
   },
   marker: {
     // backgroundColor: 'red',
-    width: '20%',
+    width: '10%',
+    height: '20%',
+  },
+
+  markerCountry: {
+    // backgroundColor: 'red',
+    width: '40%',
     height: '20%',
   },
 });
