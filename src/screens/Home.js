@@ -17,7 +17,8 @@ import MapView, {Marker, Circle, Callout} from 'react-native-maps';
 import RNPickerSelect from 'react-native-picker-select';
 import axios from 'axios';
 import Modal, {SlideAnimation, ModalContent} from 'react-native-modals';
-import MapsCovid from './modals/maps';
+import Modal1 from './modals/Modal1';
+import Modal2 from './modals/Modal2';
 
 const COVID_WORLD = 'https://corona.lmao.ninja/all';
 const COVID_COUNTRY = 'https://corona.lmao.ninja/countries?sort=country';
@@ -29,7 +30,6 @@ const initialState = {
   latitudeDelta: 0,
   longitudeDelta: 2.05,
 };
-
 const convertTime = time => {
   let d = new Date(time);
   let c = new Date();
@@ -60,6 +60,7 @@ export default class Maps extends Component {
       listDataCountry: [],
       countryInfo: [],
       listDataCountryInfo: [],
+      tracksViewChanges: true,
     };
   }
 
@@ -89,8 +90,8 @@ export default class Maps extends Component {
     console.warn(this.state.dataCountry);
   };
 
-  getcoordinate = () => {
-    navigator.geolocation.getCurrentPosition(
+  getcoordinate = async () => {
+    await navigator.geolocation.getCurrentPosition(
       position => {
         const {longitude, latitude} = position.coords;
         let data = {
@@ -121,10 +122,10 @@ export default class Maps extends Component {
     () => this.countryInfo();
   };
 
-  countryInfo = () => {
+  countryInfo = async () => {
     let data = this.state.dataCountry.countryInfo;
     {
-      this.state.dataCountry.country === undefined
+      (await this.state.dataCountry.country) === undefined
         ? console.warn('country check null')
         : console.warn('country check find'),
         this.setState({countryInfo: data});
@@ -171,13 +172,26 @@ export default class Maps extends Component {
     // this.state.markers[index].showCallout();
   };
 
+  stopTrackingViewChanges = () => {
+    this.setState(() => ({
+      tracksViewChanges: false,
+    }));
+  };
+
+  disableTracking = () => {
+    setInterval(() => {
+      this.stopTrackingViewChanges();
+    }, 8000);
+  };
+
   componentDidMount() {
     this.listDataCountryInfo();
 
     this.getcoordinate();
-    this.getCovidAll();
     this.getCovidCountry();
+    this.getCovidAll();
     this.countryInfo();
+    this.disableTracking();
   }
 
   render() {
@@ -185,14 +199,88 @@ export default class Maps extends Component {
       //  this.state.currentPosition.latitude ?
       /* <StatusBar translucent backgroundColor="transparent" /> */
       <>
+        {/* {this.disableTracking()} */}
         <StatusBar backgroundColor="#1c313a" />
-        <MapsCovid
-          currentPosition={this.state.currentPosition}
-          listDataCountryInfo={this.state.listDataCountryInfo}
-        />
-        {/* {console.warn(this.state.listDataCountryInfo)} */}
+        <MapView
+          ref={ref => (this.myMap = ref)}
+          style={styles.map}
+          showsTraffic
+          showsMyLocationButton
+          mapType={'satellite'}
+          showsCompass={true}
+          initialRegion={this.state.currentPosition}>
+          <Marker
+            style={styles.marker}
+            coordinate={this.state.currentPosition}
+            onPress={() => {
+              this.myMap.fitToCoordinates([this.state.currentPosition], {
+                edgePadding: {top: 50, right: 50, bottom: 50, left: 50},
+                animated: true,
+              });
+            }}>
+            <Image
+              style={{
+                width: '100%',
+                height: '100%',
 
-        {/* {console.warn(this.state.countryInfo)} */}
+                borderColor: '#A5EACF',
+              }}
+              source={{
+                uri:
+                  'https://images.vexels.com/media/users/3/142675/isolated/preview/84e468a8fff79b66406ef13d3b8653e2-house-location-marker-icon-by-vexels.png',
+              }}
+            />
+          </Marker>
+          {this.state.listDataCountryInfo.map((e, index) => {
+            return (
+              <View style={{width: 200, height: 200}}>
+                <Marker
+                  key={e}
+                  tracksViewChanges={this.state.tracksViewChanges}
+                  //   icon={{uri: e.flag}}
+                  style={styles.markerCountry}
+                  coordinate={{
+                    latitude: e.lat,
+                    longitude: e.long,
+                    latitudeDelta: 0,
+                    longitudeDelta: 0.05,
+                  }}
+                  onPress={() => {
+                    this.filterCountry(e.country);
+                  }}>
+                  <Image
+                    style={{
+                      marginTop: '0%',
+                      width: '20%',
+                      height: '40%',
+                      alignSelf: 'center',
+
+                      borderColor: '#A5EACF',
+                    }}
+                    source={{
+                      uri: e.flag,
+                    }}
+                  />
+                  <Text
+                    style={{
+                      color: '#fff',
+                      textAlign: 'center',
+                      fontWeight: 'bold',
+                      fontSize: 11,
+                    }}>
+                    {e.country} 😷{e.cases}
+                  </Text>
+                </Marker>
+              </View>
+            );
+          })}
+          {/* <MapsCovid
+            currentPosition={this.state.currentPosition}
+            listDataCountryInfo={this.state.listDataCountryInfo}
+            filterCountry={this.filterCountry}
+            myMap={this.myMap}
+          /> */}
+        </MapView>
         <Modal
           style={{
             height: '100%',
@@ -209,259 +297,12 @@ export default class Maps extends Component {
           onTouchOutside={() => {
             this.setState({visible1: false});
           }}>
-          <View
-            style={{
-              // paddingTop: '50%',
-
-              height: 180,
-              width: 370,
-              top: 0,
-              // paddingHorizontal: 40,
-              backgroundColor: '#fff',
-            }}>
-            {this.state.dataCountry.country === undefined ? (
-              <>
-                <View
-                  style={{
-                    backgroundColor: '#fff',
-                    flexDirection: 'row',
-                    height: '25%',
-                    width: '90%',
-                    alignSelf: 'center',
-                    borderRadius: 25,
-                  }}>
-                  <View
-                    style={{
-                      top: '12%',
-                      left: '10%',
-                      width: '40%',
-                    }}>
-                    <Text
-                      style={{
-                        left: '-4%',
-                        width: 150,
-                        textAlign: 'center',
-                        top: '5.5%',
-                        fontSize: 14,
-                        color: '#7d887a',
-                        fontStyle: 'italic',
-                      }}>
-                      Active
-                    </Text>
-                    <View
-                      style={{
-                        top: '6%',
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: 20,
-                      }}>
-                      <Text
-                        style={{
-                          left: '-4%',
-                          top: '50%',
-                          textAlign: 'center',
-                          color: '#f8ad1e',
-                          width: 150,
-                          height: '100%',
-                          fontSize: 20,
-                          fontWeight: 'bold',
-                          fontFamily: 'monospace',
-                        }}>
-                        {this.state.dataCountry.active}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View
-                    style={{
-                      top: '12%',
-                      left: '100%',
-                      width: '40%',
-                    }}>
-                    <Text
-                      style={{
-                        left: '-4%',
-                        width: 150,
-                        textAlign: 'center',
-                        top: '5.5%',
-                        fontSize: 14,
-                        color: '#7d887a',
-                        fontStyle: 'italic',
-                      }}>
-                      Affected Countries
-                    </Text>
-                    <View
-                      style={{
-                        top: '6%',
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: 20,
-                      }}>
-                      <Text
-                        style={{
-                          left: '-4%',
-                          top: '50%',
-                          textAlign: 'center',
-                          color: '#B11E31',
-                          width: 150,
-                          height: '100%',
-                          fontSize: 20,
-                          fontWeight: 'bold',
-                          fontFamily: 'monospace',
-                        }}>
-                        {this.state.dataCountry.affectedCountries}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-                <View style={{top: '-25%'}}>
-                  <Image
-                    style={{
-                      alignSelf: 'center',
-                      width: '16%',
-                      height: '57%',
-                    }}
-                    source={{
-                      uri:
-                        'https://cdn.iconscout.com/icon/premium/png-256-thumb/virus-78-613107.png',
-                    }}
-                  />
-                </View>
-                <View style={{top: '-8%'}}>
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      fontSize: 10,
-                    }}>
-                    Data Updated at{' '}
-                    {convertTime(this.state.dataCountry.updated)}
-                  </Text>
-                </View>
-              </>
-            ) : (
-              <>
-                {/* {console.warn(this.state.countryInfo)} */}
-                <View
-                  style={{
-                    backgroundColor: '#fff',
-                    flexDirection: 'row',
-                    height: '25%',
-                    width: '90%',
-                    alignSelf: 'center',
-                    borderRadius: 25,
-                  }}>
-                  <View
-                    style={{
-                      top: '12%',
-                      left: '10%',
-                      width: '40%',
-                    }}>
-                    <Text
-                      style={{
-                        left: '-4%',
-                        width: 150,
-                        textAlign: 'center',
-                        top: '5.5%',
-                        fontSize: 14,
-                        color: '#7d887a',
-                        fontStyle: 'italic',
-                      }}>
-                      Today Cases
-                    </Text>
-                    <View
-                      style={{
-                        top: '6%',
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: 20,
-                      }}>
-                      <Text
-                        style={{
-                          left: '-4%',
-                          top: '50%',
-                          textAlign: 'center',
-                          color: '#f8ad1e',
-                          width: 150,
-                          height: '100%',
-                          fontSize: 20,
-                          fontWeight: 'bold',
-                          fontFamily: 'monospace',
-                        }}>
-                        {this.state.dataCountry.todayCases}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View
-                    style={{
-                      top: '12%',
-                      left: '100%',
-                      width: '40%',
-                    }}>
-                    <Text
-                      style={{
-                        left: '-4%',
-                        width: 150,
-                        textAlign: 'center',
-                        top: '5.5%',
-                        fontSize: 14,
-                        color: '#7d887a',
-                        fontStyle: 'italic',
-                      }}>
-                      Today Deaths
-                    </Text>
-                    <View
-                      style={{
-                        top: '6%',
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: 20,
-                      }}>
-                      <Text
-                        style={{
-                          left: '-4%',
-                          top: '50%',
-                          textAlign: 'center',
-                          color: '#B11E31',
-                          width: 150,
-                          height: '100%',
-                          fontSize: 20,
-                          fontWeight: 'bold',
-                          fontFamily: 'monospace',
-                        }}>
-                        {this.state.dataCountry.todayDeaths}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-                <View style={{top: '-25%'}}>
-                  <Image
-                    style={{
-                      alignSelf: 'center',
-                      width: '16%',
-                      height: '57%',
-                    }}
-                    source={{
-                      uri:
-                        'https://cdn.iconscout.com/icon/premium/png-256-thumb/virus-78-613107.png',
-                    }}
-                  />
-                </View>
-                <View style={{top: '-8%'}}>
-                  <Text
-                    style={{
-                      //   height: '100%',
-                      //   width: '100%',
-                      textAlign: 'center',
-                      fontSize: 10,
-                    }}>
-                    Data Updated at{' '}
-                    {convertTime(this.state.dataCountry.updated)}
-                  </Text>
-                </View>
-              </>
-            )}
-          </View>
+          <Modal1
+            visible1={this.state.visible1}
+            listDataCountry={this.listDataCountry}
+            dataCountry={this.state.dataCountry}
+            convertTime={this.convertTime}
+          />
         </Modal>
 
         <Modal
@@ -480,132 +321,7 @@ export default class Maps extends Component {
           onTouchOutside={() => {
             this.setState({visible2: false});
           }}>
-          <View
-            style={{
-              // paddingTop: '50%',
-
-              height: 180,
-              width: 370,
-              top: 0,
-              // paddingHorizontal: 40,
-              backgroundColor: '#fff',
-            }}>
-            <View
-              style={{
-                backgroundColor: '#fff',
-                flexDirection: 'row',
-                height: '25%',
-                width: '90%',
-                alignSelf: 'center',
-                borderRadius: 25,
-              }}>
-              <View
-                style={{
-                  top: '12%',
-                  left: '10%',
-                  width: '40%',
-                }}>
-                <Text
-                  style={{
-                    left: '-4%',
-                    width: 150,
-                    textAlign: 'center',
-                    top: '5.5%',
-                    fontSize: 14,
-                    color: '#7d887a',
-                    fontStyle: 'italic',
-                  }}>
-                  ODP
-                </Text>
-                <View
-                  style={{
-                    top: '6%',
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: 20,
-                  }}>
-                  <Text
-                    style={{
-                      left: '-4%',
-                      top: '50%',
-                      textAlign: 'center',
-                      color: '#f8ad1e',
-                      width: 150,
-                      height: '100%',
-                      fontSize: 20,
-                      fontWeight: 'bold',
-                      fontFamily: 'monospace',
-                    }}>
-                    {this.state.dataCountry.odp}
-                  </Text>
-                </View>
-              </View>
-
-              <View
-                style={{
-                  top: '12%',
-                  left: '100%',
-                  width: '40%',
-                }}>
-                <Text
-                  style={{
-                    left: '-4%',
-                    width: 150,
-                    textAlign: 'center',
-                    top: '5.5%',
-                    fontSize: 14,
-                    color: '#7d887a',
-                    fontStyle: 'italic',
-                  }}>
-                  PDP
-                </Text>
-                <View
-                  style={{
-                    top: '6%',
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: 20,
-                  }}>
-                  <Text
-                    style={{
-                      left: '-4%',
-                      top: '50%',
-                      textAlign: 'center',
-                      color: '#B11E31',
-                      width: 150,
-                      height: '100%',
-                      fontSize: 20,
-                      fontWeight: 'bold',
-                      fontFamily: 'monospace',
-                    }}>
-                    {this.state.dataCountry.pdp}
-                  </Text>
-                </View>
-              </View>
-            </View>
-            <View style={{top: '-25%'}}>
-              <Image
-                style={{
-                  alignSelf: 'center',
-                  width: '16%',
-                  height: '57%',
-                }}
-                source={{
-                  uri:
-                    'https://cdn.iconscout.com/icon/premium/png-256-thumb/virus-78-613107.png',
-                }}
-              />
-            </View>
-            <View style={{top: '-8%'}}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 10,
-                }}>
-                https://dinkes.lampungprov.go.id/covid19/
-              </Text>
-            </View>
-          </View>
+          <Modal2 dataCountry={this.state.dataCountry} />
         </Modal>
 
         <View
@@ -876,12 +592,12 @@ export default class Maps extends Component {
           <View style={{position: 'absolute', width: '100%', height: '100%'}}>
             <TouchableOpacity
               style={{
-                right: -320,
-                top: '6.5%',
+                right: -323,
+                top: '7%',
 
                 // top: '400%',
-                width: '100%',
-                height: '100%',
+                width: 50,
+                height: 50,
                 // borderRadius: 35,
                 // marginVertical: 10,
                 paddingVertical: 13,
@@ -890,8 +606,8 @@ export default class Maps extends Component {
               <Image
                 style={{
                   // top: '80%',
-                  width: 50,
-                  height: 50,
+                  width: 40,
+                  height: 40,
                   borderRadius: 50,
                   //   borderWidth: 1,
                   borderColor: '#33cccc',
@@ -931,6 +647,15 @@ export default class Maps extends Component {
             }}
             source={require('../images/logovizy.png')}
           />
+          <Text
+            style={{
+              top: 5,
+              alignSelf: 'center',
+              fontSize: 11,
+              fontWeight: 'bold',
+            }}>
+            Corona Virus (Covid-19) Information
+          </Text>
           <ActivityIndicator style={{top: 20}} animating size="large" />
         </View>
       </>
