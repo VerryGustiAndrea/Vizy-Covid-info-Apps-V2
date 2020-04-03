@@ -284,7 +284,7 @@ export default class Maps extends Component {
         <Modal
           style={{
             height: '100%',
-            paddingTop: '175%',
+            // paddingTop: '135%',
             borderRadius: 50,
           }}
           transparent={true}
@@ -308,7 +308,7 @@ export default class Maps extends Component {
         <Modal
           style={{
             height: '100%',
-            paddingTop: '175%',
+            // paddingTop: '175%',
             borderRadius: 50,
           }}
           transparent={true}
@@ -418,6 +418,7 @@ export default class Maps extends Component {
                 }}
                 onPress={() => {
                   this.filterCountry('indonesia');
+                  // this.getCovidLampung();
                 }}>
                 <Text style={styles.buttonTextDetail}>Indonesia</Text>
               </TouchableOpacity>
@@ -515,7 +516,7 @@ export default class Maps extends Component {
                   color: '#7d887a',
                   fontStyle: 'italic',
                 }}>
-                Recover
+                Recovered
               </Text>
               <View
                 style={{
@@ -551,7 +552,7 @@ export default class Maps extends Component {
                   color: '#7d887a',
                   fontStyle: 'italic',
                 }}>
-                Death
+                Deaths
               </Text>
               <View
                 style={{
@@ -592,7 +593,7 @@ export default class Maps extends Component {
           <View style={{position: 'absolute', width: '100%', height: '100%'}}>
             <TouchableOpacity
               style={{
-                right: -323,
+                right: '-82%',
                 top: '7%',
 
                 // top: '400%',
@@ -706,7 +707,7 @@ const styles = StyleSheet.create({
   marker: {
     // backgroundColor: 'red',
     width: '15%',
-    height: '15%',
+    height: '20%',
   },
 
   markerCountry: {
