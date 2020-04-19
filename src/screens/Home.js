@@ -18,6 +18,7 @@ import MapView, {Marker, Circle, Callout} from 'react-native-maps';
 import RNPickerSelect from 'react-native-picker-select';
 import axios from 'axios';
 import Modal, {SlideAnimation, ModalContent} from 'react-native-modals';
+import SwipeablePanel from 'rn-swipeable-panel';
 import Modal1 from './modals/Modal1';
 import Modal2 from './modals/Modal2';
 import Dark from './mapStyle/Dark';
@@ -47,6 +48,7 @@ export default class Maps extends Component {
   constructor() {
     super();
     this.state = {
+      visible: true,
       visible1: false,
       visible2: false,
       currentPosition: initialState,
@@ -293,7 +295,36 @@ export default class Maps extends Component {
             myMap={this.myMap}
           /> */}
         </MapView>
-        <Modal
+
+        <SwipeablePanel
+          style={{
+            zInde: 1,
+            top: ' 15%',
+            height: '150%',
+            // paddingTop: '135%',
+            borderRadius: 30,
+            backgroundColor: '#2f2f2f',
+            position: 'absolute',
+          }}
+          onlyLarge
+          fullWidth
+          closeOnTouchOutside
+          isActive={this.state.visible1}
+          onClose={() => {
+            this.setState({visible1: false});
+          }}
+          onPressCloseButton={() => {
+            this.setState({visible1: false});
+          }}>
+          <Modal1
+            visible1={this.state.visible1}
+            listDataCountry={this.listDataCountry}
+            dataCountry={this.state.dataCountry}
+            convertTime={this.convertTime}
+          />
+        </SwipeablePanel>
+
+        {/* <Modal
           style={{
             height: '100%',
             // paddingTop: '135%',
@@ -315,7 +346,7 @@ export default class Maps extends Component {
             dataCountry={this.state.dataCountry}
             convertTime={this.convertTime}
           />
-        </Modal>
+        </Modal> */}
         <Modal
           style={{
             height: '100%',
@@ -377,7 +408,7 @@ export default class Maps extends Component {
             style={{
               // top: '80%',
               width: 27,
-              height: 43,
+              height: 44,
               // borderRadius: 50,
               //   borderWidth: 1,
               // borderColor: '#33cccc',
@@ -390,7 +421,7 @@ export default class Maps extends Component {
         </TouchableOpacity>
         <Text
           style={{
-            top: '-21%',
+            top: '-20%',
             fontSize: 15,
             alignSelf: 'center',
             fontWeight: 'bold',
@@ -399,12 +430,13 @@ export default class Maps extends Component {
           }}>
           {/* {console.warn(this.state.dataCountry.countryInfo)} */}
           {this.state.dataCountry.country === undefined
-            ? 'On Earth 🌐'
+            ? 'On Earth 🌎'
             : this.state.dataCountry.country}
         </Text>
 
         <View
           style={{
+            zIndex: 2,
             backgroundColor: '#2b2b2b',
             flexDirection: 'row',
             bottom: '4%',
