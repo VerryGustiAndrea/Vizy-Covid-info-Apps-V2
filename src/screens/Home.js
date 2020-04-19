@@ -22,10 +22,12 @@ import SwipeablePanel from 'rn-swipeable-panel';
 import Modal1 from './modals/Modal1';
 import Modal2 from './modals/Modal2';
 import Dark from './mapStyle/Dark';
+import {connect} from 'react-redux';
+import {getCovidAll} from '../redux/action/home';
+import {getCovidCountry} from '../redux/action/home';
 
-const COVID_WORLD = 'https://corona.lmao.ninja/v2/all';
-const COVID_COUNTRY = 'https://corona.lmao.ninja/v2/countries?sort=country';
 const COVID_LAMPUNG = 'http://54.166.159.175:4000/api/product/getallcovid';
+const COVID_COUNTRY = 'https://corona.lmao.ninja/v2/countries?sort=country';
 
 const initialState = {
   latitude: null,
@@ -44,7 +46,7 @@ const convertTime = time => {
   return result;
 };
 
-export default class Maps extends Component {
+class Home extends Component {
   constructor() {
     super();
     this.state = {
@@ -68,23 +70,37 @@ export default class Maps extends Component {
     };
   }
 
-  getCovidAll = async () => {
-    await axios.get(COVID_WORLD).then(res => {
-      let dataCountry = res.data;
-      //   console.warn(dataCountry);
-      this.setState({dataCountry});
+  // getCovidAll = async () => {
+  //   await axios.get(COVID_WORLD).then(res => {
+  //     let dataCountry = res.data;
+  //     //   console.warn(dataCountry);
+  //     this.setState({dataCountry});
+  //   });
+  //   console.warn(this.state.dataCountry);
+  // };
+
+  getCovidAllRedux = async () => {
+    await this.props.dispatch(getCovidAll());
+    this.setState({
+      dataCountry: this.props.home.dataCovidWorld,
     });
-    // console.warn(this.state.dataCountry);
   };
 
-  getCovidCountry = async () => {
-    await axios.get(COVID_COUNTRY).then(res => {
-      const listDataCountry = res.data;
-      // const listDataCountry = listDataCountryX.reverse();
-      // console.warn(listDataCountry.reverse());
-      this.setState({listDataCountry});
+  getCovidCountryRedux = async () => {
+    await this.props.dispatch(getCovidCountry());
+    this.setState({
+      listDataCountry: this.props.home.dataCovidAllCountry,
     });
   };
+
+  // getCovidCountry = async () => {
+  //   await axios.get(COVID_COUNTRY).then(res => {
+  //     const listDataCountry = res.data;
+  //     // const listDataCountry = listDataCountryX.reverse();
+  //     // console.warn(listDataCountry.reverse());
+  //     this.setState({listDataCountry});
+  //   });
+  // };
 
   getCovidLampung = async () => {
     await axios.get(COVID_LAMPUNG).then(res => {
@@ -138,30 +154,30 @@ export default class Maps extends Component {
   };
 
   listDataCountryInfo = async () => {
-    await axios.get(COVID_COUNTRY).then(res => {
-      let data = res.data;
-      let dataX = [];
-      data.map(e => {
-        {
-          dataX.push({
-            country: e.country,
-            cases: e.cases,
-            _id: e.countryInfo._id,
-            lat: e.countryInfo.lat,
-            long: e.countryInfo.long,
-            flag: e.countryInfo.flag,
-          });
-        }
-      });
-      // console.warn(dataX);
+    await this.props.dispatch(getCovidCountry());
 
-      // {
-      //   this.state.dataCountry.country === undefined
-      //     ? console.warn('country check null')
-      //     : console.warn('country check find'),
-      this.setState({listDataCountryInfo: dataX});
-      // }
+    let data = this.props.home.dataCovidAllCountry;
+    let dataX = [];
+    data.map(e => {
+      {
+        dataX.push({
+          country: e.country,
+          cases: e.cases,
+          _id: e.countryInfo._id,
+          lat: e.countryInfo.lat,
+          long: e.countryInfo.long,
+          flag: e.countryInfo.flag,
+        });
+      }
     });
+    // console.warn(dataX);
+
+    // {
+    //   this.state.dataCountry.country === undefined
+    //     ? console.warn('country check null')
+    //     : console.warn('country check find'),
+    this.setState({listDataCountryInfo: dataX});
+    // }
   };
 
   onTarget = () => {
@@ -193,8 +209,8 @@ export default class Maps extends Component {
     this.listDataCountryInfo();
 
     this.getcoordinate();
-    this.getCovidCountry();
-    this.getCovidAll();
+    this.getCovidCountryRedux();
+    this.getCovidAllRedux();
     this.countryInfo();
     this.disableTracking();
   }
@@ -306,14 +322,12 @@ export default class Maps extends Component {
             backgroundColor: '#2f2f2f',
             position: 'absolute',
           }}
+          useNativeDriver={true}
           onlyLarge
           fullWidth
           closeOnTouchOutside
           isActive={this.state.visible1}
           onClose={() => {
-            this.setState({visible1: false});
-          }}
-          onPressCloseButton={() => {
             this.setState({visible1: false});
           }}>
           <Modal1
@@ -660,3 +674,11 @@ const styles = StyleSheet.create({
     height: '32%',
   },
 });
+
+const mapStateToProps = ({home}) => {
+  return {
+    home,
+  };
+};
+
+export default connect(mapStateToProps)(Home);

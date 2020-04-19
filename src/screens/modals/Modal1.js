@@ -277,6 +277,8 @@ const Modal1 = props => {
         style={{
           // backgroundColor: '#fff',
           width: '90%',
+          left: '-5%',
+          // borderRadius: 20,
         }}>
         <ProgressChart
           data={data}
