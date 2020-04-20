@@ -1,4 +1,8 @@
-# Simple Express API E-Commerce
+# Simple Corona Virus Information App
+
+  <br>
+  <img src="https://ibb.co/JFPM4wz" width="200">
+  <br>`
 
 To learn about microservices
 
