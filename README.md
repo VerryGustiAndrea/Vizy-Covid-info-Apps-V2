@@ -3,7 +3,7 @@
 To learn about microservices
 
 [Structure](#structure) |
-[Run Debug](#run) |
+[Run Debug](#run debug) |
 [Build](#build) |
 [License](#license)
 
