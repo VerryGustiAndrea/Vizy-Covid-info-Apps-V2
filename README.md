@@ -30,7 +30,7 @@ We use very simple structure to get started with
     |-- .env
 ```
 
-## RunDebug
+## Run Debug
 
 "npx react-native run-android"
 
