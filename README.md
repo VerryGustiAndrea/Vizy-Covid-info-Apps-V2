@@ -3,7 +3,8 @@
 To learn about microservices
 
 [Structure](#structure) |
-[Run](#run) |
+[Run Debug](#run) |
+[Build](#build) |
 [License](#license)
 
 ## Structure
@@ -12,44 +13,51 @@ We use very simple structure to get started with
 
 ```
 |-- express-api-ecommerce
-  |-- task_1
-    |-- app
+  |-- Vizy
+    |-- android
+    |-- src
       |-- config
-      |-- controllers
-      |-- helper
-      |-- models
-      |-- routes
+      |-- images
+      |-- redux
+        |--action
+        |--reducer
+      |-- screens
+        |--mapStyle
+        |--modals
     |-- node_modules
-    |-- uploads
-    |-- server.js
+    |-- App.js
+    |-- Index.js
     |-- .env
 ```
 
-## Run
+## Run Debug
 
-"npm start"
+"npx react-native run-android"
+
+
+## Build
+"cd android/"
+"sudo ./gradlew assembleRelease"
 
 ### Prerequisites
 - Node.js - Download and Install [Node.js](https://nodejs.org/en/) - Simple bash script to manage multiple active node.js versions.
-- MySQL - Download and Install [MySQL](https://www.mysql.com/downloads/) - Make sure it's running on the default port.
+- Google Maps Api - Setup [Google Maps API](https://developers.google.com/maps/documentation/android-sdk/intro) - Make sure it's running on the default port.
 
 
 ```
-  $ https://github.com/arham09/express-api-gateway.git
+  $ https://github.com/VerryGustiAndrea/Vizy-Covid-info-Apps-V2
 
-  $ cd task_1
+  $ cd Vizy
   
-  $ cp .env.sample .env
   $ npm install
-  $ npm start
+  $ npx react-native run-android
+  $ npx react-native start
 
-  $ cd test-api
-  $ cp .env.sample .env
-  $ npm install
-  $ npm start
+  $ cd android
+  $ sudo ./gradlew assembleRelease
 ```
 
 ### License
 ----
 
-[Beerware](https://en.wikipedia.org/wiki/Beerware "Beerware") © [Verry Gusti Andrea](https://www.instagram.com/verrygustiandrea/ "Verry")
+ © [Verry Gusti Andrea](https://www.instagram.com/verrygustiandrea/ "Verry")
