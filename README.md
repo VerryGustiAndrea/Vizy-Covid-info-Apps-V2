@@ -3,7 +3,7 @@
 To learn about microservices
 
 [Structure](#structure) |
-[Run Debug](#run debug) |
+[Run Debug](#rundebug) |
 [Build](#build) |
 [License](#license)
 
@@ -30,7 +30,7 @@ We use very simple structure to get started with
     |-- .env
 ```
 
-## Run Debug
+## RunDebug
 
 "npx react-native run-android"
 
