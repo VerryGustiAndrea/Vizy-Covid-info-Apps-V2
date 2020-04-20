@@ -52,6 +52,7 @@ const Modal1 = props => {
     }
     return result;
   };
+
   return (
     <>
       <View
@@ -289,6 +290,63 @@ const Modal1 = props => {
           chartConfig={chartConfig}
           hideLegend={false}
         />
+      </View>
+      <TouchableOpacity
+        style={{left: '2%', position: 'absolute', top: '69%'}}
+        onPress={() => {
+          props.covidAll(), props.covidCountry(), props.loadingEvent();
+        }}>
+        <Image
+          style={{
+            // top: '80%',
+            right: 0,
+            width: 44,
+            height: 44,
+            // borderRadius: 50,
+            //   borderWidth: 1,
+            // borderColor: '#33cccc',
+            // position: 'absolute',
+          }}
+          source={{
+            uri:
+              'https://cdn2.iconfinder.com/data/icons/basic-ui-elements-round/700/012_restart-2-512.png',
+          }}
+        />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={{right: '2%', position: 'absolute', top: '69%'}}
+        onPress={() => {
+          props.info();
+        }}>
+        <Image
+          style={{
+            // top: '80%',
+            right: 0,
+            width: 44,
+            height: 44,
+            // borderRadius: 50,
+            //   borderWidth: 1,
+            // borderColor: '#33cccc',
+            // position: 'absolute',
+          }}
+          source={{
+            uri:
+              'https://lh3.googleusercontent.com/proxy/e0rRGFol2ESng4G61jFkSQ69A4QoHm5gT3Zzuxx9Q0vcQG7KPmwLuQ-HPHUl1S8tT2se8mB1QxguTh-8lep7D-S7VhqXJAnTje8FT71-CbLB25inHNixiz1b-A',
+          }}
+        />
+      </TouchableOpacity>
+      <View style={{marginTop: '50%'}}>
+        <Text
+          style={{
+            //   height: '100%',
+            //   width: '100%',
+            textAlign: 'center',
+            fontSize: 10,
+            color: '#fff',
+          }}>
+          Vizy App 2020
+        </Text>
       </View>
     </>
   );

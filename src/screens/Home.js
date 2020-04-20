@@ -7,7 +7,6 @@ import {
   StyleSheet,
   ActivityIndicator,
   Image,
-  Linking,
   ImageBackground,
   ScrollView,
   TextInput,
@@ -19,8 +18,10 @@ import RNPickerSelect from 'react-native-picker-select';
 import axios from 'axios';
 import Modal, {SlideAnimation, ModalContent} from 'react-native-modals';
 import SwipeablePanel from 'rn-swipeable-panel';
+import Info from './modals/Info';
 import Modal1 from './modals/Modal1';
 import Modal2 from './modals/Modal2';
+import Loading from './modals/Loading';
 import Dark from './mapStyle/Dark';
 import {connect} from 'react-redux';
 import {getCovidAll} from '../redux/action/home';
@@ -50,7 +51,8 @@ class Home extends Component {
   constructor() {
     super();
     this.state = {
-      visible: true,
+      visibleLoading: true,
+      visible: false,
       visible1: false,
       visible2: false,
       currentPosition: initialState,
@@ -78,6 +80,14 @@ class Home extends Component {
   //   });
   //   console.warn(this.state.dataCountry);
   // };
+  loadingDataScreen = async () => {
+    await this.setState({visibleLoading: false});
+  };
+
+  loadingEvent = async () => {
+    await this.setState({visibleLoading: true});
+    setTimeout(this.loadingDataScreen, 8000);
+  };
 
   getCovidAllRedux = async () => {
     await this.props.dispatch(getCovidAll());
@@ -189,8 +199,10 @@ class Home extends Component {
       latitudeDelta: 0,
       longitudeDelta: 28.03,
     });
+  };
 
-    // this.state.markers[index].showCallout();
+  Info = () => {
+    this.setState({visible: true});
   };
 
   stopTrackingViewChanges = () => {
@@ -207,7 +219,7 @@ class Home extends Component {
 
   componentDidMount() {
     this.listDataCountryInfo();
-
+    this.loadingEvent();
     this.getcoordinate();
     this.getCovidCountryRedux();
     this.getCovidAllRedux();
@@ -335,32 +347,49 @@ class Home extends Component {
             listDataCountry={this.listDataCountry}
             dataCountry={this.state.dataCountry}
             convertTime={this.convertTime}
+            covidCountry={this.getCovidCountryRedux}
+            covidAll={this.getCovidAllRedux}
+            info={this.Info}
+            loadingEvent={this.loadingEvent}
           />
         </SwipeablePanel>
+        <Modal
+          style={{
+            height: '100%',
+            width: '100%', // paddingTop: '135%',
+            borderRadius: 50,
+          }}
+          transparent={true}
+          visible={this.state.visibleLoading}
+          onTouchOutside={() => {
+            this.setState({visibleloading: false});
+          }}>
+          <Loading />
+        </Modal>
 
-        {/* <Modal
+        <Modal
           style={{
             height: '100%',
             // paddingTop: '135%',
             borderRadius: 50,
           }}
           transparent={true}
-          visible={this.state.visible1}
+          visible={this.state.visible}
           modalAnimation={
             new SlideAnimation({
-              slideFrom: 'bottom',
+              slideFrom: 'right',
             })
           }
           onTouchOutside={() => {
-            this.setState({visible1: false});
+            this.setState({visible: false});
           }}>
-          <Modal1
+          <Info
             visible1={this.state.visible1}
             listDataCountry={this.listDataCountry}
             dataCountry={this.state.dataCountry}
             convertTime={this.convertTime}
           />
-        </Modal> */}
+        </Modal>
         <Modal
           style={{
             height: '100%',
@@ -416,7 +445,7 @@ class Home extends Component {
             paddingVertical: 13,
           }}
           onPress={() => {
-            this.onTarget(), this.getCovidAll();
+            this.onTarget(), this.getCovidAllRedux();
           }}>
           <Image
             style={{
@@ -599,13 +628,14 @@ class Home extends Component {
               width: 125,
               height: 125,
               alignSelf: 'center',
+              borderRadius: 25,
             }}
             source={require('../images/logovizy.png')}
           />
           <Text
             style={{
               color: '#fff',
-              top: 5,
+              top: 10,
               alignSelf: 'center',
               fontSize: 11,
               fontWeight: 'bold',
