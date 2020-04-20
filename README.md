@@ -1,7 +1,7 @@
 # Simple Corona Virus Information App
 
   <br>
-  <img src="https://ibb.co/JFPM4wz" width="200">
+  <img src="https://i.ibb.co/4gx5Gnj/Vizy-1.png" width="200">
   <br>`
 
 To learn about microservices
