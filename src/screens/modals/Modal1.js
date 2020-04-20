@@ -307,10 +307,7 @@ const Modal1 = props => {
             // borderColor: '#33cccc',
             // position: 'absolute',
           }}
-          source={{
-            uri:
-              'https://cdn2.iconfinder.com/data/icons/basic-ui-elements-round/700/012_restart-2-512.png',
-          }}
+          source={require('../../images/reset.png')}
         />
       </TouchableOpacity>
 
@@ -330,10 +327,7 @@ const Modal1 = props => {
             // borderColor: '#33cccc',
             // position: 'absolute',
           }}
-          source={{
-            uri:
-              'https://lh3.googleusercontent.com/proxy/e0rRGFol2ESng4G61jFkSQ69A4QoHm5gT3Zzuxx9Q0vcQG7KPmwLuQ-HPHUl1S8tT2se8mB1QxguTh-8lep7D-S7VhqXJAnTje8FT71-CbLB25inHNixiz1b-A',
-          }}
+          source={require('../../images/info.png')}
         />
       </TouchableOpacity>
       <View style={{marginTop: '50%'}}>
