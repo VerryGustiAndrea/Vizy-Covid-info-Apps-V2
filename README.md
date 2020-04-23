@@ -4,7 +4,6 @@
   <img src="https://i.ibb.co/4gx5Gnj/Vizy-1.png" width="1200">
   <br>`
 
-To learn about microservices
 
 [Structure](#structure) |
 [Run Debug](#run_debug) |
@@ -45,8 +44,7 @@ We use very simple structure to get started with
 
 ### Prerequisites
 - Node.js - Download and Install [Node.js](https://nodejs.org/en/) - Simple bash script to manage multiple active node.js versions.
-- Google Maps Api - Setup [Google Maps API](https://developers.google.com/maps/documentation/android-sdk/intro) - Make sure it's running on the default port.
-
+- Google Maps Api - Setup [Google Maps API](https://developers.google.com/maps/documentation/android-sdk/intro) 
 
 ```
   $ https://github.com/VerryGustiAndrea/Vizy-Covid-info-Apps-V2
